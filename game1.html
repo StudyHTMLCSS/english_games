@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>Змейка: S после he/she/it</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#241b3e;
+ font-family:'Segoe UI',Verdana,Arial,sans-serif;touch-action:none;user-select:none}
+#game{position:fixed;inset:0;display:block}
+#hud{position:fixed;top:12px;left:50%;transform:translateX(-50%);display:flex;gap:12px;z-index:5}
+.pill{background:rgba(0,0,0,.55);border:2px solid rgba(255,255,255,.14);border-radius:14px;
+ padding:4px 20px;text-align:center;color:#fff;min-width:86px}
+.pill .lb{font-size:11px;letter-spacing:2px;font-weight:800;opacity:.85}
+.pill .vl{font-size:26px;font-weight:900;line-height:1.05}
+#pTime .vl{color:#3ec9ff}#pScore .vl{color:#ffd93b}
+#pLives .vl{color:#ff5d7a;font-size:22px;padding-top:4px}
+#rule{position:fixed;top:12px;left:12px;z-index:5;background:rgba(0,0,0,.45);color:#e6dcff;
+ border:2px solid rgba(160,120,255,.4);border-radius:12px;padding:8px 12px;font-size:13px;font-weight:700}
+#rule b{color:#ffd93b}
+#powerups{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);display:flex;gap:16px;z-index:5}
+.pbtn{position:relative;width:62px;height:62px;border-radius:50%;border:3px solid rgba(255,255,255,.25);
+ background:rgba(0,0,0,.5);color:#fff;font-size:24px;font-weight:900;cursor:pointer}
+.pbtn .cnt{position:absolute;right:-7px;bottom:-7px;width:24px;height:24px;border-radius:50%;
+ background:#ff4757;border:2px solid #fff;color:#fff;font-size:12px;font-weight:900;
+ display:flex;align-items:center;justify-content:center}
+.pbtn.on{border-color:#7cfc9a;box-shadow:0 0 16px #7cfc9a}
+.pbtn:disabled{opacity:.35;cursor:default}
+#overlay{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;
+ background:rgba(12,7,26,.72);backdrop-filter:blur(3px)}
+.panel{background:linear-gradient(160deg,#3a2a68,#241b3e);border:3px solid rgba(160,120,255,.5);
+ border-radius:22px;padding:26px 34px;max-width:560px;width:calc(100% - 40px);max-height:90vh;overflow:auto;
+ color:#fff;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.panel h1{margin:0 0 12px;font-size:26px}
+.panel h1 .y{color:#ffd93b}
+.panel p{margin:10px 0;font-size:16px;line-height:1.45}
+.panel .ex{color:#9be7ff;font-weight:800}
+.good{color:#7cfc9a}.bad{color:#ff5d7a}
+.big{margin-top:14px;background:#ffd93b;color:#241b3e;border:0;border-radius:14px;
+ padding:14px 44px;font-size:20px;font-weight:900;cursor:pointer;letter-spacing:1px}
+.big:hover{filter:brightness(1.1)}
+.stats{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:12px 0}
+.stat{background:rgba(0,0,0,.35);border-radius:12px;padding:8px 14px;min-width:90px}
+.stat .n{font-size:24px;font-weight:900}
+.stat .t{font-size:11px;letter-spacing:1px;opacity:.8;font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0}
+.chip{background:rgba(255,93,122,.15);border:2px solid #ff5d7a;border-radius:20px;padding:4px 12px;font-weight:800}
+.hide{display:none!important}
+@media (max-width:700px){#rule{display:none}}
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<div id="rule">Правило: <b>he / she / it</b> + глагол<b>-s</b></div>
+<div id="hud">
+ <div class="pill" id="pTime"><div class="lb">ВРЕМЯ</div><div class="vl" id="vTime">1:00</div></div>
+ <div class="pill" id="pScore"><div class="lb">СЧЁТ</div><div class="vl" id="vScore">0</div></div>
+ <div class="pill" id="pLives"><div class="lb">ЖИЗНИ</div><div class="vl" id="vLives">♥♥♥</div></div>
+</div>
+<div id="powerups">
+ <button class="pbtn" id="puHint" title="Подсказка — подсветить правильные">👀<span class="cnt">3</span></button>
+ <button class="pbtn" id="puMagnet" title="Магнит — притянуть слова">🧲<span class="cnt">3</span></button>
+ <button class="pbtn" id="puX2" style="font-size:17px" title="×2 очки">×2<span class="cnt">3</span></button>
+</div>
+<div id="overlay">
+ <div class="panel" id="panel">
+  <h1>🐍 ЗМЕЙКА · <span class="y">S</span> ПОСЛЕ he/she/it</h1>
+  <p>После <b>he / she / it</b> к глаголу добавляется <b style="color:#ffd93b">-s</b>:<br>
+     <span class="ex">he plays · she runs · it goes</span></p>
+  <p>Веди змейку курсором (или пальцем) и съедай только
+     <b class="good">правильные фразы</b>.<br>
+     <b class="bad">Ошибочные</b> — отнимают жизнь. Всего ❤️×3 и ⏱️ 60 секунд.</p>
+  <p style="font-size:14px;opacity:.85">Бонусы внизу: 👀 подсказка · 🧲 магнит · ×2 очки</p>
+  <p style="font-size:14px">Рекорд: <b id="bestStart" style="color:#ffd93b">0</b></p>
+  <button class="big" id="btnStart">ИГРАТЬ</button>
+ </div>
+</div>
+<script>
+'use strict';
+const $=s=>document.getElementById(s);
+const cv=$('game'),ctx=cv.getContext('2d');
+const clamp=(v,a,b)=>v<a?a:v>b?b:v;
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
+
+let W=0,H=0,bg=null;
+function resize(){W=innerWidth;H=innerHeight;const d=Math.min(2,devicePixelRatio||1);
+ cv.width=W*d;cv.height=H*d;cv.style.width=W+'px';cv.style.height=H+'px';ctx.setTransform(d,0,0,d,0,0);makeBG();}
+addEventListener('resize',resize);
+
+function makeBG(){bg=document.createElement('canvas');bg.width=W;bg.height=H;const c=bg.getContext('2d');
+ c.fillStyle='#241b3e';c.fillRect(0,0,W,H);const rnd=mulberry32(777);const cell=92;
+ for(let y=-40;y<H+40;y+=cell*0.74){for(let x=-60;x<W+60;x+=cell){
+  const w=cell*(0.72+rnd()*0.5),h=cell*(0.52+rnd()*0.4),jx=(rnd()-.5)*34,jy=(rnd()-.5)*26;
+  c.fillStyle='hsl('+(256+rnd()*16)+',42%,'+(16+rnd()*9)+'%)';rr(c,x+jx,y+jy,w,h,14);c.fill();
+  c.fillStyle='rgba(255,255,255,.05)';rr(c,x+jx+5,y+jy+5,w-10,h*.42,10);c.fill();}}
+ const g=c.createRadialGradient(W/2,H/2,Math.min(W,H)*.35,W/2,H/2,Math.max(W,H)*.8);
+ g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(0,0,0,.5)');c.fillStyle=g;c.fillRect(0,0,W,H);}
+
+const VERBS=[['play','plays'],['run','runs'],['eat','eats'],['go','goes'],['watch','watches'],
+['study','studies'],['like','likes'],['read','reads'],['write','writes'],['jump','jumps'],
+['swim','swims'],['fly','flies'],['make','makes'],['dance','dances'],['sleep','sleeps'],['have','has']];
+const PRON=['he','she','it'];
+
+let best=0;try{best=+(localStorage.getItem('wormSBest')||0)}catch(e){}
+const S={mode:'start',score:0,lives:3,time:60,combo:0,best:best,
+ nC:0,nW:0,mistakes:[],hintT:0,magT:0,x2T:0,cnt:{hint:3,mag:3,x2:3}};
+const snake={segs:[],ang:0,sp:280,turn:8,gap:12,hr:16};
+const ptr={x:innerWidth/2,y:innerHeight/2};
+let bubbles=[],parts=[],floats=[],flash=0,spawnT=0,tGlob=0;
+
+function initSnake(){snake.segs.length=0;const x=W/2,y=H*0.62;snake.ang=-Math.PI/2;
+ for(let i=0;i<16;i++)snake.segs.push({x:x-Math.cos(snake.ang)*i*snake.gap,y:y-Math.sin(snake.ang)*i*snake.gap});}
+addEventListener('pointermove',e=>{ptr.x=e.clientX;ptr.y=e.clientY});
+addEventListener('pointerdown',e=>{ptr.x=e.clientX;ptr.y=e.clientY});
+
+function measure(t){ctx.font='800 18px "Segoe UI",Arial';return ctx.measureText(t).width}
+function spawnBubble(force){
+ for(let tr=0;tr<25;tr++){
+  const p=PRON[Math.random()*3|0],v=VERBS[Math.random()*VERBS.length|0];
+  const ok=force!==undefined?force:Math.random()<0.5;
+  const text=p+' '+(ok?v[1]:v[0]);
+  if(bubbles.some(b=>b.text===text))continue;
+  const x=90+Math.random()*Math.max(60,W-180);
+  const yMin=100,yMax=Math.max(yMin+10,H-140);
+  const y=yMin+Math.random()*(yMax-yMin);
+  const hd=snake.segs[0];if(hd&&Math.hypot(x-hd.x,y-hd.y)<160)continue;
+  const a=Math.random()*6.283,sp=18+Math.random()*22;
+  bubbles.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,text,ok,fix:p+' '+v[1],
+   hw:measure(text)/2+16,hh:22,ph:Math.random()*7});
+  return;}
+}
+
+let AC=null;
+function audio(){try{if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();
+ if(AC.state==='suspended')AC.resume();}catch(e){}return AC}
+function tone(f,d,type,g,delay){const ac=AC;if(!ac)return;type=type||'sine';g=g||0.25;delay=delay||0;
+ const o=ac.createOscillator(),gn=ac.createGain();o.type=type;o.frequency.value=f;
+ gn.gain.setValueAtTime(g,ac.currentTime+delay);gn.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+delay+d);
+ o.connect(gn);gn.connect(ac.destination);o.start(ac.currentTime+delay);o.stop(ac.currentTime+delay+d+0.02);}
+const sGood=()=>{tone(620,0.12,'triangle',0.25);tone(830,0.16,'triangle',0.22,0.09)};
+const sBad =()=>{tone(180,0.25,'sawtooth',0.3);tone(120,0.3,'sawtooth',0.25,0.12)};
+const sPow =()=>{tone(500,0.1,'square',0.2);tone(700,0.12,'square',0.2,0.08)};
+const sOver=()=>{tone(400,0.3,'triangle',0.3);tone(300,0.3,'triangle',0.3,0.25);tone(200,0.5,'triangle',0.3,0.5)};
+
+function grow(n){for(let i=0;i<n;i++){const t=snake.segs[snake.segs.length-1];snake.segs.push({x:t.x,y:t.y})}}
+function shrink(n){snake.segs.length=Math.max(10,snake.segs.length-n)}
+function burst(x,y,c){for(let i=0;i<22;i++){const a=Math.random()*6.283,s=60+Math.random()*180;
+ parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-60,l:.7+Math.random()*.5,c,r:2+Math.random()*3})}}
+
+function eat(b,i){bubbles.splice(i,1);
+ if(b.ok){S.combo++;const pts=(10+(S.combo-1)*2)*(S.x2T>0?2:1);S.score+=pts;S.nC++;
+  grow(2);sGood();burst(b.x,b.y,'#7cfc9a');
+  floats.push({x:b.x,y:b.y-26,t:'+'+pts+' ✔ '+b.text,c:'#7cfc9a',l:1.4});
+  if(S.combo>=3)floats.push({x:b.x,y:b.y+4,t:'серия ×'+S.combo,c:'#ffd93b',l:1.2});
+ }else{S.lives--;S.combo=0;S.nW++;S.mistakes.push(b.fix);flash=0.6;shrink(3);sBad();burst(b.x,b.y,'#ff5d7a');
+  floats.push({x:b.x,y:b.y-26,t:'✘ '+b.text+' → '+b.fix,c:'#ff5d7a',l:2});
+  if(S.lives<=0)gameOver('lives');}
+}
+
+function start(){S.mode='play';S.score=0;S.lives=3;S.time=60;S.combo=0;S.nC=0;S.nW=0;S.mistakes=[];
+ S.hintT=S.magT=S.x2T=0;S.cnt={hint:3,mag:3,x2:3};
+ bubbles=[];parts=[];floats=[];flash=0;spawnT=0;initSnake();
+ for(let i=0;i<8;i++)spawnBubble(i<4);
+ $('overlay').classList.add('hide');audio();sPow();}
+
+function gameOver(reason){S.mode='over';
+ if(S.score>S.best){S.best=S.score;try{localStorage.setItem('wormSBest',S.best)}catch(e){}}
+ sOver();
+ const acc=(S.nC+S.nW)?Math.round(100*S.nC/(S.nC+S.nW)):0;
+ const mis=[];S.mistakes.forEach(m=>{if(mis.indexOf(m)<0&&mis.length<6)mis.push(m)});
+ $('panel').innerHTML='<h1>'+(reason==='lives'?'💥 ИГРА ОКОНЧЕНА':'⏰ ВРЕМЯ ВЫШЛО')+'!</h1>'+
+ '<div class="stats">'+
+ '<div class="stat"><div class="n" style="color:#ffd93b">'+S.score+'</div><div class="t">СЧЁТ</div></div>'+
+ '<div class="stat"><div class="n" style="color:#7cfc9a">'+S.nC+'</div><div class="t">ВЕРНО</div></div>'+
+ '<div class="stat"><div class="n" style="color:#ff5d7a">'+S.nW+'</div><div class="t">ОШИБКИ</div></div>'+
+ '<div class="stat"><div class="n" style="color:#3ec9ff">'+acc+'%</div><div class="t">ТОЧНОСТЬ</div></div></div>'+
+ '<p style="opacity:.9">Рекорд: <b style="color:#ffd93b">'+S.best+'</b></p>'+
+ (mis.length?'<p>Повтори правило: <b>he/she/it + verb-s</b></p><div class="chips">'+
+   mis.map(m=>'<span class="chip">'+m+'</span>').join('')+'</div>':'')+
+ '<button class="big" id="btnAgain">ИГРАТЬ ЕЩЁ</button>';
+ $('overlay').classList.remove('hide');}
+
+function useP(k){if(S.mode!=='play'||S.cnt[k]<=0)return;S.cnt[k]--;sPow();
+ if(k==='hint')S.hintT=4;else if(k==='mag')S.magT=6;else S.x2T=8;}
+$('puHint').onclick=()=>useP('hint');
+$('puMagnet').onclick=()=>useP('mag');
+$('puX2').onclick=()=>useP('x2');
+$('overlay').addEventListener('click',e=>{if(e.target.id==='btnStart'||e.target.id==='btnAgain')start();});
+
+function update(dt){tGlob+=dt;S.time-=dt;
+ if(S.time<=0){S.time=0;gameOver('time');return}
+ S.hintT=Math.max(0,S.hintT-dt);S.magT=Math.max(0,S.magT-dt);S.x2T=Math.max(0,S.x2T-dt);
+ const h=snake.segs[0],dx=ptr.x-h.x,dy=ptr.y-h.y,dist=Math.hypot(dx,dy);
+ if(dist>1){const ta=Math.atan2(dy,dx);let da=ta-snake.ang;
+  while(da>Math.PI)da-=2*Math.PI;while(da<-Math.PI)da+=2*Math.PI;
+  const mt=snake.turn*dt;snake.ang+=clamp(da,-mt,mt);}
+ const eff=snake.sp*clamp(dist/70,0,1);
+ h.x=clamp(h.x+Math.cos(snake.ang)*eff*dt,10,W-10);
+ h.y=clamp(h.y+Math.sin(snake.ang)*eff*dt,10,H-10);
+ for(let i=1;i<snake.segs.length;i++){const p=snake.segs[i-1],s=snake.segs[i];
+  const ax=s.x-p.x,ay=s.y-p.y,d=Math.hypot(ax,ay)||1e-4,k=snake.gap/d;
+  s.x=p.x+ax*k;s.y=p.y+ay*k;}
+ for(let i=bubbles.length-1;i>=0;i--){const b=bubbles[i];
+  if(S.magT>0){const hx=h.x-b.x,hy=h.y-b.y,d=Math.hypot(hx,hy)||1;
+   b.vx+=hx/d*260*dt;b.vy+=hy/d*260*dt;const vm=Math.hypot(b.vx,b.vy);
+   if(vm>150){b.vx*=150/vm;b.vy*=150/vm;}}
+  b.x+=b.vx*dt;b.y+=b.vy*dt;
+  if(b.x<b.hw+8){b.x=b.hw+8;b.vx*=-1}if(b.x>W-b.hw-8){b.x=W-b.hw-8;b.vx*=-1}
+  if(b.y<70){b.y=70;b.vy*=-1}if(b.y>H-90){b.y=H-90;b.vy*=-1}
+  if(Math.abs(h.x-b.x)<b.hw+snake.hr&&Math.abs(h.y-b.y)<b.hh+snake.hr)eat(b,i);}
+ if(S.mode!=='play')return;
+ spawnT-=dt;
+ if(bubbles.length<8&&spawnT<=0){spawnT=0.7;
+  const nc=bubbles.filter(b=>b.ok).length;
+  spawnBubble(nc<3?true:nc>5?false:undefined);}
+ for(let i=parts.length-1;i>=0;i--){const p=parts[i];p.l-=dt;p.vy+=260*dt;
+  p.x+=p.vx*dt;p.y+=p.vy*dt;if(p.l<=0)parts.splice(i,1)}
+ for(let i=floats.length-1;i>=0;i--){const f=floats[i];f.l-=dt;f.y-=28*dt;if(f.l<=0)floats.splice(i,1)}
+ flash=Math.max(0,flash-dt);}
+
+function render(){ctx.clearRect(0,0,W,H);if(bg)ctx.drawImage(bg,0,0,W,H);
+ for(const b of bubbles){const bob=Math.sin(tGlob*2+b.ph)*3;
+  ctx.save();ctx.translate(b.x,b.y+bob);
+  ctx.shadowColor='rgba(140,100,255,.8)';ctx.shadowBlur=14;
+  ctx.fillStyle='rgba(22,14,46,.9)';rr(ctx,-b.hw,-b.hh,b.hw*2,b.hh*2,b.hh);ctx.fill();
+  ctx.shadowBlur=0;ctx.strokeStyle='rgba(160,120,255,.75)';ctx.lineWidth=2;
+  rr(ctx,-b.hw,-b.hh,b.hw*2,b.hh*2,b.hh);ctx.stroke();
+  if(S.hintT>0&&b.ok){ctx.strokeStyle='rgba(124,252,154,'+(0.5+0.5*Math.sin(tGlob*8))+')';
+   ctx.lineWidth=3;rr(ctx,-b.hw-5,-b.hh-5,b.hw*2+10,b.hh*2+10,b.hh+5);ctx.stroke();}
+  ctx.fillStyle='#fff';ctx.font='800 18px "Segoe UI",Arial';
+  ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(b.text,0,1);
+  ctx.restore();}
+ const n=snake.segs.length;
+ for(let i=n-1;i>=1;i--){const s=snake.segs[i],t=1-i/n,r=6+10*t;
+  ctx.fillStyle=i%2?'#ff9426':'#f57f17';ctx.strokeStyle='#a34400';ctx.lineWidth=2;
+  ctx.beginPath();ctx.arc(s.x,s.y,r,0,6.283);ctx.fill();ctx.stroke();}
+ const h=snake.segs[0];
+ ctx.shadowColor='rgba(255,150,40,.9)';ctx.shadowBlur=18;
+ ctx.fillStyle='#ffb340';ctx.strokeStyle='#a34400';ctx.lineWidth=2.5;
+ ctx.beginPath();ctx.arc(h.x,h.y,snake.hr,0,6.283);ctx.fill();ctx.stroke();
+ ctx.shadowBlur=0;
+ ctx.fillStyle='#7a2d00';ctx.beginPath();ctx.moveTo(h.x,h.y);
+ ctx.arc(h.x,h.y,snake.hr-1,snake.ang-0.55,snake.ang+0.55);ctx.closePath();ctx.fill();
+ for(const s of[-1,1]){const ex=h.x+Math.cos(snake.ang)*6+Math.cos(snake.ang+Math.PI/2)*7*s,
+  ey=h.y+Math.sin(snake.ang)*6+Math.sin(snake.ang+Math.PI/2)*7*s;
+  ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(ex,ey,4.6,0,6.283);ctx.fill();
+  ctx.fillStyle='#222';ctx.beginPath();ctx.arc(ex+Math.cos(snake.ang)*1.8,ey+Math.sin(snake.ang)*1.8,2.3,0,6.283);ctx.fill();}
+ for(const p of parts){ctx.globalAlpha=clamp(p.l,0,1);ctx.fillStyle=p.c;
+  ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,6.283);ctx.fill();}
+ ctx.globalAlpha=1;ctx.textAlign='center';ctx.textBaseline='middle';
+ for(const f of floats){ctx.globalAlpha=clamp(f.l,0,1);ctx.font='900 17px "Segoe UI",Arial';
+  ctx.lineWidth=4;ctx.strokeStyle='rgba(0,0,0,.7)';ctx.strokeText(f.t,f.x,f.y);
+  ctx.fillStyle=f.c;ctx.fillText(f.t,f.x,f.y);}
+ ctx.globalAlpha=1;
+ if(flash>0){ctx.fillStyle='rgba(255,45,70,'+(flash*0.35)+')';ctx.fillRect(0,0,W,H);}}
+
+function setCnt(id,c,t){const el=$(id);el.querySelector('.cnt').textContent=S.cnt[c];
+ el.disabled=S.mode!=='play'||S.cnt[c]<=0;el.classList.toggle('on',S[t]>0);}
+function hud(){const m=Math.floor(S.time/60),s=Math.floor(S.time%60);
+ $('vTime').textContent=m+':'+String(s).padStart(2,'0');
+ $('vScore').textContent=S.score;
+ $('vLives').textContent='♥'.repeat(Math.max(0,S.lives))||'—';
+ setCnt('puHint','hint','hintT');setCnt('puMagnet','mag','magT');setCnt('puX2','x2','x2T');}
+
+let last=performance.now();
+function loop(t){const dt=Math.min(0.033,(t-last)/1000);last=t;
+ if(S.mode==='play')update(dt);else tGlob+=dt;
+ render();hud();requestAnimationFrame(loop);}
+resize();initSnake();$('bestStart').textContent=S.best;requestAnimationFrame(loop);
+</script>
+</body>
+</html>

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game Hub — Обучающие игры</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; font-family: 'Segoe UI', Tahoma, sans-serif; }
+  body, html { width: 100%; height: 100%; overflow: hidden; background: #1a0b2e; }
+
+  /* Главный контейнер хаба */
+  #hub {
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at center, #2e1458 0%, #120524 100%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    z-index: 10; padding: 20px;
+    background-image: url('bg.jpg'); background-size: cover; background-position: center;
+  }
+  
+  /* Затемнение фона для читаемости */
+  #hub::before {
+    content: ''; position: absolute; inset: 0;
+    background: rgba(18, 5, 36, 0.75); z-index: -1;
+  }
+
+  .hub-title {
+    font-size: clamp(36px, 5vw, 64px); font-weight: 900; color: #7cfcff;
+    text-shadow: 0 0 20px #00d2ff, 0 0 40px #00d2ff, 2px 2px 0 #000;
+    margin-bottom: 40px; letter-spacing: 2px; text-align: center;
+  }
+
+  .cards-container {
+    display: flex; gap: 30px; flex-wrap: wrap; justify-content: center; max-width: 1200px;
+  }
+
+  .game-card {
+    background: rgba(45, 27, 84, 0.65);
+    border: 3px solid rgba(160, 120, 255, 0.4);
+    backdrop-filter: blur(10px);
+    border-radius: 24px;
+    width: 320px; padding: 24px; text-align: center;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    display: flex; flex-direction: column; align-items: center;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+
+  .game-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 25px 50px rgba(124, 252, 255, 0.2);
+    border-color: rgba(124, 252, 255, 0.8);
+  }
+
+  .game-badge {
+    font-size: 11px; font-weight: 800; letter-spacing: 1.5px; color: #d4bcff;
+    text-transform: uppercase; margin-bottom: 12px;
+  }
+
+  .game-icon {
+    font-size: 64px; margin-bottom: 14px;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+  }
+
+  .game-name {
+    font-size: 24px; font-weight: 900; color: #fff; margin-bottom: 8px;
+  }
+
+  .game-desc {
+    font-size: 14px; color: #dcd0ff; margin-bottom: 24px; line-height: 1.4;
+    min-height: 40px;
+  }
+
+  .play-btn {
+    border: none; border-radius: 999px; padding: 12px 36px;
+    font-size: 18px; font-weight: 900; cursor: pointer; color: #fff;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3); transition: filter 0.2s, transform 0.1s;
+    letter-spacing: 1px;
+  }
+  .play-btn:hover { filter: brightness(1.15); transform: scale(1.05); }
+  .play-btn:active { transform: scale(0.98); }
+
+  .btn-snake { background: linear-gradient(135deg, #ff2e88, #ff6baf); box-shadow: 0 6px 20px rgba(255,46,136,0.4); }
+  .btn-zombie { background: linear-gradient(135deg, #2ecc71, #27ae60); box-shadow: 0 6px 20px rgba(46,204,113,0.4); }
+  .btn-bubbles { background: linear-gradient(135deg, #f39c12, #e67e22); box-shadow: 0 6px 20px rgba(243,156,18,0.4); }
+
+  /* Контейнеры для игр */
+  .game-screen {
+    position: absolute; inset: 0; display: none; z-index: 20; background: #000;
+  }
+  .game-screen.active { display: block; }
+
+  /* Кнопка возврата в меню из игры */
+  .back-menu {
+    position: fixed; top: 12px; left: 12px; z-index: 100;
+    background: rgba(0,0,0,0.6); border: 2px solid rgba(255,255,255,0.3);
+    color: #fff; padding: 8px 16px; border-radius: 12px; font-weight: bold;
+    cursor: pointer; backdrop-filter: blur(4px); transition: background 0.2s;
+  }
+  .back-menu:hover { background: rgba(255,255,255,0.2); }
+</style>
+</head>
+<body>
+
+  <!-- ГЛАВНОЕ МЕНЮ (ХАБ) -->
+  <div id="hub">
+    <div class="hub-title">GAME HUB</div>
+    <div class="cards-container">
+      
+      <!-- Карточка 1: Змейка -->
+      <div class="game-card">
+        <div class="game-badge">Present Simple</div>
+        <div class="game-icon">🐍</div>
+        <div class="game-name">Snake</div>
+        <div class="game-desc">Собирай правильные окончания глаголов -S для he/she/it!</div>
+        <button class="play-btn btn-snake" onclick="openGame('snakeGame')">PLAY</button>
+      </div>
+
+      <!-- Карточка 2: Зомби -->
+      <div class="game-card">
+        <div class="game-badge">Phrasal Verbs</div>
+        <div class="game-icon">🧟</div>
+        <div class="game-name">Zombie</div>
+        <div class="game-desc">Защити эльфов от нашествия зомби с помощью английского!</div>
+        <button class="play-btn btn-zombie" onclick="openGame('zombieGame')">PLAY</button>
+      </div>
+
+      <!-- Карточка 3: Пузыри -->
+      <div class="game-card">
+        <div class="game-badge">There was / There were</div>
+        <div class="game-icon">🫧</div>
+        <div class="game-name">Grammar Bubbles</div>
+        <div class="game-desc">Лопай правильные пузыри в твоем районе!</div>
+        <button class="play-btn btn-bubbles" onclick="openGame('bubblesGame')">PLAY</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ЭКРАНЫ ИГР -->
+  <div id="snakeGame" class="game-screen">
+    <button class="back-menu" onclick="closeGames()">⬅ Меню</button>
+    <iframe srcdoc="<!-- Сюда вставляется код игры Змейка из Источника 1 -->" style="width:100%; height:100%; border:none;"></iframe>
+  </div>
+
+  <div id="zombieGame" class="game-screen">
+    <button class="back-menu" onclick="closeGames()">⬅ Меню</button>
+    <iframe srcdoc="<!-- Сюда вставляется код игры Зомби из Источника 2 -->" style="width:100%; height:100%; border:none;"></iframe>
+  </div>
+
+  <div id="bubblesGame" class="game-screen">
+    <button class="back-menu" onclick="closeGames()">⬅ Меню</button>
+    <iframe srcdoc="<!-- Сюда вставляется код игры Пузыри из Источника 3 -->" style="width:100%; height:100%; border:none;"></iframe>
+  </div>
+
+<script>
+  function openGame(gameId) {
+    document.getElementById('hub').style.display = 'none';
+    document.getElementById(gameId).classList.add('active');
+  }
+
+  function closeGames() {
+    document.querySelectorAll('.game-screen').forEach(screen => screen.classList.remove('active'));
+    document.getElementById('hub').style.display = 'flex';
+  }
+</script>
+
+</body>
+</html>
