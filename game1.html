@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game Hub - Обучающие игры</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      /* Устанавливаем загруженную картинку как фон */
+      background: url('1786389983.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .hub-container {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      flex-wrap: wrap;
+      max-width: 1100px;
+      width: 100%;
+      margin-top: 120px; /* Отступ под заголовок на картинке */
+    }
+
+    /* Карточки теперь являются ссылками */
+    .game-card {
+      background: rgba(26, 15, 45, 0.45);
+      backdrop-filter: blur(8px);
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      border-radius: 25px;
+      padding: 30px 20px;
+      width: 280px;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    }
+
+    .game-card:hover {
+      transform: translateY(-8px);
+      border-color: #6ef7ff;
+      box-shadow: 0 20px 40px rgba(110, 247, 255, 0.3);
+    }
+
+    /* Кнопки PLAY внутри карточек */
+    .play-btn {
+      display: inline-block;
+      padding: 12px 35px;
+      border-radius: 30px;
+      font-weight: bold;
+      font-size: 16px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #fff;
+      margin-top: 20px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      transition: transform 0.2s ease, filter 0.2s ease;
+    }
+
+    .game-card:hover .play-btn {
+      transform: scale(1.05);
+      filter: brightness(1.15);
+    }
+
+    /* Стили для разных вариантов кнопок */
+    .btn-pink {
+      background: linear-gradient(90deg, #ff2e93, #ff53c2);
+    }
+
+    .btn-green {
+      background: linear-gradient(90deg, #00b06b, #1ddc8b);
+    }
+
+    .btn-orange {
+      background: linear-gradient(90deg, #ff7b00, #ffa200);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="hub-container">
+    
+    <!-- Карточка 1: Snake -->
+    <a href="game1.html" class="game-card">
+      <div class="play-btn btn-pink">PLAY</div>
+    </a>
+
+    <!-- Карточка 2: Zombie -->
+    <a href="game2.html" class="game-card">
+      <div class="play-btn btn-green">PLAY</div>
+    </a>
+
+    <!-- Карточка 3: Grammar Bubbles -->
+    <a href="game3.html" class="game-card">
+      <div class="play-btn btn-orange">PLAY</div>
+    </a>
+
+  </div>
+
+</body>
+</html>
