@@ -19,7 +19,6 @@
     box-shadow:0 0 40px rgba(0,0,0,.6);
   }
 
-  /* ---------- HUD ---------- */
   #hud { padding:8px 10px 4px; display:flex; flex-direction:column; gap:6px; z-index:5; }
   .hud-row { display:flex; align-items:center; gap:8px; }
   #hearts { font-size:22px; letter-spacing:2px; filter:drop-shadow(0 2px 2px rgba(0,0,0,.4)); }
@@ -49,7 +48,6 @@
     font-size:11px; font-weight:900; color:#5b3a00;
   }
 
-  /* ---------- Question card ---------- */
   #qCard {
     margin:6px 12px; background:#fff6da; border:4px solid #f2a54a; border-radius:18px;
     padding:10px 12px; text-align:center; z-index:5;
@@ -62,7 +60,6 @@
   #qFeedback.ok  { color:#1d8f1d; }
   #qFeedback.bad { color:#d11; }
 
-  /* ---------- Bubbles ---------- */
   #bubbleArea { flex:1; position:relative; overflow:hidden; min-height:200px; }
   .bubble {
     position:absolute; border-radius:50%; display:flex; align-items:center; justify-content:center;
@@ -92,7 +89,6 @@
   }
   @keyframes rise { to { transform:translateY(-70px); opacity:0; } }
 
-  /* ---------- Overlays / panels ---------- */
   .overlay {
     position:absolute; inset:0; background:rgba(20,10,40,.65); z-index:20;
     display:flex; align-items:center; justify-content:center; padding:18px;
@@ -132,7 +128,6 @@
 <body>
 <div id="app">
 
-  <!-- HUD -->
   <div id="hud" class="hidden">
     <div class="hud-row">
       <span id="hearts">❤️❤️❤️</span>
@@ -145,17 +140,14 @@
     <div id="timeBarWrap"><div id="timeBar"></div><span id="timeText"></span></div>
   </div>
 
-  <!-- Question -->
   <div id="qCard" class="hidden">
     <div id="qHint"></div>
     <div id="qText"></div>
     <div id="qFeedback"></div>
   </div>
 
-  <!-- Bubbles -->
   <div id="bubbleArea"></div>
 
-  <!-- START -->
   <div class="overlay" id="startScreen">
     <div class="panel">
       <div class="ribbon">PAST SIMPLE GAME</div>
@@ -167,7 +159,6 @@
     </div>
   </div>
 
-  <!-- LEVEL WIN -->
   <div class="overlay hidden" id="winScreen">
     <div class="panel">
       <div class="ribbon" id="winRibbon">LEVEL 1 COMPLETE!</div>
@@ -178,7 +169,6 @@
     </div>
   </div>
 
-  <!-- FINAL WIN -->
   <div class="overlay hidden" id="finalScreen">
     <div class="panel">
       <div class="ribbon">ALL LEVELS DONE!</div>
@@ -190,7 +180,6 @@
     </div>
   </div>
 
-  <!-- LOSE -->
   <div class="overlay hidden" id="loseScreen">
     <div class="panel">
       <div class="ribbon" id="loseRibbon">OUT OF TIME!</div>
@@ -201,7 +190,6 @@
     </div>
   </div>
 
-  <!-- PAUSE -->
   <div class="overlay hidden" id="pauseScreen">
     <div class="panel">
       <div class="ribbon">PAUSE</div>
@@ -212,7 +200,6 @@
     </div>
   </div>
 
-  <!-- HELP -->
   <div class="overlay hidden" id="helpScreen">
     <div class="panel">
       <div class="ribbon">GRAMMAR HELP</div>
@@ -232,7 +219,6 @@
 </div>
 
 <script>
-/* ================= DATA ================= */
 const SING = [["bakery","🥐"],["park","🌳"],["school","🏫"],["supermarket","🛒"],["cinema","🎬"],
   ["library","📚"],["hospital","🏥"],["bank","🏦"],["post office","📮"],["café","☕"],
   ["restaurant","🍽️"],["museum","🏛️"],["playground","🎠"],["bus stop","🚌"],["zoo","🦁"],["toy shop","🧸"]];
@@ -241,18 +227,16 @@ const PLUR = [["parks","🌳"],["cafés","☕"],["shops","🏬"],["houses","🏠
 const QUANT = ["two","three","many","some"];
 const Q_PER_LEVEL = 6, LEVEL_TIME = 75, MAX_LEVEL = 3;
 
-/* ================= STATE ================= */
 let level=1, score=0, levelStartScore=0, hearts=3, timeLeft=LEVEL_TIME;
 let qIndex=0, mistakes=0, streak=0, totalStars=0;
 let running=false, paused=false, locked=false;
-let q=null, bubbles=[], timerId=null, areaW=0, areaH=0, helpReturn=null;
+let q=null, bubbles=[], timerId=null, areaW=0, areaH=0;
 
 const $ = id => document.getElementById(id);
 const area = $("bubbleArea");
 const rand = a => a[Math.floor(Math.random()*a.length)];
 const shuffle = a => a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(p=>p[1]);
 
-/* ================= SOUND ================= */
 let AC=null;
 function beep(f,d,type="sine",g=.18){
   try{
@@ -268,7 +252,6 @@ const sndPop  = ()=>{ beep(520,.12); setTimeout(()=>beep(760,.1),60); };
 const sndGood = ()=>{ beep(660,.12); setTimeout(()=>beep(880,.14),110); setTimeout(()=>beep(1100,.18),220); };
 const sndBad  = ()=>beep(150,.25,"sawtooth",.12);
 
-/* ================= QUESTIONS ================= */
 function makeQ(lv){
   const types = lv===1 ? ["s","p"] : lv===2 ? ["s","p","ns","np"] : ["s","p","ns","np","qs","qp"];
   const t = rand(types);
@@ -292,7 +275,6 @@ function makeQ(lv){
            opts:["was","were","wasn't","weren't"] };
 }
 
-/* ================= BUBBLES ================= */
 function measure(){ const r=area.getBoundingClientRect(); areaW=r.width; areaH=r.height; }
 function clearBubbles(){ bubbles.forEach(b=>b.el.remove()); bubbles=[]; }
 function spawnBubbles(opts){
@@ -327,7 +309,6 @@ function tick(){
 }
 requestAnimationFrame(tick);
 
-/* ================= GAME FLOW ================= */
 function show(id){ $(id).classList.remove("hidden"); }
 function hide(id){ $(id).classList.add("hidden"); }
 
@@ -413,7 +394,6 @@ function toMenu(){
   hide("hud"); hide("qCard"); show("startScreen");
 }
 
-/* ================= UI HELPERS ================= */
 function updateScore(){ $("score").textContent=score; }
 function updateHearts(){ $("hearts").textContent="❤️".repeat(hearts)+"🤍".repeat(3-hearts); }
 function updateTime(){
@@ -424,7 +404,6 @@ function updateTime(){
   $("timeText").textContent=m+":"+s;
 }
 
-/* ================= BUTTONS ================= */
 $("playBtn").onclick = ()=>{ sndPop(); startGame(); };
 $("nextBtn").onclick = ()=>{ sndPop(); level++; startLevel(); };
 $("againBtn").onclick= ()=>{ sndPop(); startGame(); };

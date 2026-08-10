@@ -13,7 +13,6 @@
   .hidden{display:none!important}
   .panel{background:linear-gradient(#7a5230,#5b3a1e);border:3px solid #3e2712;border-radius:12px;color:#ffd98a;text-shadow:1px 1px 0 #0008;padding:8px 12px;font-weight:bold}
 
-  /* ===== ВЕРХНЯЯ ПАНЕЛЬ ===== */
   #topbar{position:absolute;top:10px;left:10px;right:10px;display:flex;gap:10px;align-items:center;z-index:20}
   #hearts{font-size:20px;letter-spacing:2px}
   #cards{display:flex;gap:8px}
@@ -29,7 +28,6 @@
   #waveBar{width:170px;height:14px;background:#2a1a10;border:2px solid #3e2712;border-radius:8px;overflow:hidden;margin-top:4px}
   #waveBar i{display:block;height:100%;width:0%;background:linear-gradient(90deg,#ffd94e,#ff8a2a);transition:width .3s}
 
-  /* ===== ДОСКА ===== */
   #board{position:absolute;left:250px;top:140px;width:900px;height:540px;display:grid;
     grid-template-columns:repeat(9,1fr);grid-template-rows:repeat(5,1fr);gap:4px;padding:6px;
     background:#00000055;border:4px solid #3e271288;border-radius:14px;z-index:1}
@@ -44,7 +42,6 @@
   .tile.rune .deco{opacity:1;color:#aef; text-shadow:0 0 10px #6ef7ff,0 0 20px #6ef7ff}
   @keyframes rpulse{50%{box-shadow:inset 0 0 26px #6ef7ffaa,0 0 18px #6ef7ff88}}
 
-  /* ===== СУЩНОСТИ ===== */
   #entities{position:absolute;inset:0;z-index:5;pointer-events:none}
   .zombie,.defender{position:absolute;transform:translate(-50%,-50%);text-align:center;width:80px;height:100px}
   .zombie .body{font-size:56px;display:inline-block;animation:walk .5s infinite alternate;filter:drop-shadow(0 3px 3px #000a)}
@@ -68,7 +65,6 @@
   .bolt{position:absolute;transform:translate(-50%,-50%);font-size:64px;animation:boltA .5s forwards}
   @keyframes boltA{0%{opacity:0;scale:2}30%{opacity:1;scale:1}100%{opacity:0}}
 
-  /* ===== СУПЕРСИЛА / НИЗ ===== */
   #superPanel{position:absolute;left:14px;top:210px;display:flex;flex-direction:column;gap:10px;z-index:30}
   #superPanel .spT{color:#ffe36b;font-weight:bold;text-shadow:0 0 10px #ff9a2a;animation:rpulse 1s infinite;text-align:center}
   #superPanel button{padding:10px 14px;border-radius:12px;border:3px solid #2a6b2a;background:linear-gradient(#7dd45a,#3f9a2f);
@@ -79,7 +75,6 @@
   #bl button.on{outline:3px solid #ffe36b;box-shadow:0 0 14px #ffdd57aa}
   .decor span{position:absolute;pointer-events:none;opacity:.85;filter:drop-shadow(0 3px 3px #000a)}
 
-  /* ===== БАННЕР / ВСПЫШКА ===== */
   #banner{position:absolute;left:0;right:0;top:42%;text-align:center;font-size:88px;font-weight:900;color:#fff;
     text-shadow:0 0 20px #6ef7ff,4px 4px 0 #000;z-index:40;pointer-events:none;opacity:0}
   #banner.show{animation:ban 2.2s forwards}
@@ -88,7 +83,6 @@
   #flash.on{animation:fl .4s}
   @keyframes fl{30%{opacity:1}}
 
-  /* ===== ОВЕРЛЕИ ===== */
   .overlay{position:absolute;inset:0;background:#0a0814c8;display:flex;align-items:center;justify-content:center;z-index:50}
   .modal{background:linear-gradient(#f3e2b3,#e0c68e);border:10px solid #6b4a2b;border-radius:18px;color:#4a2f14;
     box-shadow:0 20px 60px #000c, inset 0 0 40px #00000022;padding:26px 30px;position:relative;max-height:660px;overflow:auto}
@@ -156,7 +150,6 @@
   <div id="banner"></div>
   <div id="flash"></div>
 
-  <!-- ПРАВИЛА -->
   <div id="rules" class="overlay">
     <div class="modal" style="width:1040px">
       <h1>🏰 ФРАЗОВЫЕ ГЛАГОЛЫ: ЗОМБИ ПРОТИВ ЭЛЬФОВ <small>образовательный tower‑defense · English Phrasal Verbs</small></h1>
@@ -172,7 +165,6 @@
     </div>
   </div>
 
-  <!-- ВОПРОС -->
   <div id="question" class="overlay hidden">
     <div class="modal" style="width:780px">
       <button class="xbtn" id="qClose">✖</button>
@@ -183,7 +175,6 @@
     </div>
   </div>
 
-  <!-- МАГАЗИН -->
   <div id="shop" class="overlay hidden">
     <div class="modal" style="width:560px">
       <button class="xbtn" id="shopClose">✖</button>
@@ -194,7 +185,6 @@
     </div>
   </div>
 
-  <!-- ФИНАЛ -->
   <div id="end" class="overlay hidden">
     <div class="modal" style="width:560px;text-align:center">
       <div class="em" id="endEm">👑</div>
@@ -206,7 +196,6 @@
 </div>
 
 <script>
-/* ================= ДАННЫЕ ================= */
 const COLS=9,ROWS=5,CW=100,CH=108,BX=250,BY=140;
 const RUNES_CH="ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈᛉᛋᛏᛒᛗᛜᛟ";
 const DEF_TYPES={
@@ -254,13 +243,11 @@ const QUESTIONS=[
 ["She puts her success _____ to hard work.","down"],["He took _____ his father in many ways.","after"],
 ["Eat _____ your vegetables!","up"],["Drink _____ your milk while it's warm.","up"]];
 
-/* ================= СОСТОЯНИЕ ================= */
 const $=s=>document.querySelector(s);
 let tiles=[],state,qBag=[],qOpen=false,qTime=0,qCur=null,qLock=false,superPending=false,muted=false,AC=null;
 function newState(){return{runes:2,hearts:3,combo:0,wave:0,pendingWave:1,waveActive:false,started:false,over:false,paused:false,
   zombies:[],defs:[],projs:[],spawnQ:[],spawnT:0,waveTotal:1,betweenT:2.5,runeT:4,speedT:0,shovel:false,card:null,kills:0,correct:0,answered:0};}
 
-/* ================= ЗВУК ================= */
 function tone(f,d,type,g,delay=0){if(muted)return;try{if(!AC)AC=new(window.AudioContext||window.webkitAudioContext)();
   const t=AC.currentTime+delay,o=AC.createOscillator(),v=AC.createGain();o.type=type||'sine';o.frequency.value=f;
   v.gain.value=g||.12;v.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(v);v.connect(AC.destination);o.start(t);o.stop(t+d);}catch(e){}}
@@ -274,7 +261,6 @@ const sfx={shoot:()=>tone(700,.06,'square',.03),ice:()=>tone(950,.07,'square',.0
   lose:()=>[330,262,196,147].forEach((f,i)=>tone(f,.3,'sawtooth',.11,i*.22)),
   freeze:()=>{tone(1200,.3,'sine',.1);tone(900,.35,'sine',.1,.1);},bolt:()=>tone(90,.25,'sawtooth',.15)};
 
-/* ================= ПОСТРОЕНИЕ ДОСКИ ================= */
 function buildBoard(){const b=$('#board');b.innerHTML='';tiles=[];
   for(let i=0;i<COLS*ROWS;i++){const el=document.createElement('div');el.className='tile t'+(Math.random()*6|0);
     const d=document.createElement('span');d.className='deco';d.textContent=RUNES_CH[Math.random()*RUNES_CH.length|0];
@@ -286,7 +272,6 @@ function addRune(){const free=tiles.filter(t=>!t.rune&&!t.def);if(!free.length)r
   t.deco.textContent=RUNES_CH[Math.random()*RUNES_CH.length|0];}
 function clearRune(t){t.rune=false;t.el.classList.remove('rune');}
 
-/* ================= UI ================= */
 function renderHearts(){let s='';for(let i=0;i<5;i++)s+=i<state.hearts?'❤️':'🖤';
   $('#hearts').textContent=s.slice(0,state.hearts*2+ (5-state.hearts)*2)||s;$('#hearts').innerHTML=s;}
 function renderRunes(){$('#runeCount').textContent=state.runes;refreshCards();}
@@ -304,7 +289,6 @@ function banner(txt){const b=$('#banner');b.textContent=txt;b.classList.remove('
 function floatText(x,y,txt){const el=document.createElement('div');el.className='float';el.textContent=txt;
   el.style.left=x+'px';el.style.top=y+'px';$('#entities').appendChild(el);setTimeout(()=>el.remove(),1000);}
 
-/* ================= ИГРОКИ/ЗОМБИ ================= */
 function tileClick(i){if(!state.started||state.over)return;const t=tiles[i];
   if(t.rune){openQuestion(i);return;}
   if(state.shovel){if(t.def)removeDefender(t.def,true);state.shovel=false;shovelUI();return;}
@@ -329,7 +313,6 @@ function spawnZombie(type){const zt=Z_TYPES[type],row=Math.random()*ROWS|0;
 function damageZombie(z,dmg,slow){if(z.dead)return;z.hp-=dmg;if(slow)z.slow=3;sfx.hit();
   if(z.hp<=0){z.dead=true;state.kills++;sfx.die();z.el.classList.add('die');setTimeout(()=>z.el.remove(),400);}}
 
-/* ================= ВОЛНЫ ================= */
 function startWave(n){state.wave=n;state.waveActive=true;$('#waveNum').textContent=n;
   const w=WAVES[n-1];state.spawnQ=[];for(const t in w)for(let i=0;i<w[t];i++)state.spawnQ.push(t);
   state.spawnQ.sort(()=>Math.random()-.5);state.waveTotal=state.spawnQ.length;state.spawnT=1;
@@ -339,7 +322,6 @@ function waveCleared(){state.waveActive=false;
   state.runes+=2;renderRunes();floatText(640,360,'+2 🪙 за волну');
   state.pendingWave=state.wave+1;state.betweenT=4;banner('✅ ВОЛНА ОТБИТА!');}
 
-/* ================= ОБНОВЛЕНИЕ ================= */
 function update(dt){
   if(state.speedT>0)state.speedT-=dt;
   if(!state.waveActive){state.betweenT-=dt;if(state.betweenT<=0)startWave(state.pendingWave);}
@@ -347,9 +329,7 @@ function update(dt){
     if(state.spawnT<=0&&state.spawnQ.length){spawnZombie(state.spawnQ.pop());
       state.spawnT=SPAWN_INT[state.wave-1]*(0.7+Math.random()*.6);}
     if(!state.spawnQ.length&&!state.zombies.some(z=>!z.dead))return waveCleared();}
-  // руны появляются
   state.runeT-=dt;if(state.runeT<=0){state.runeT=4;if(tiles.filter(t=>t.rune).length<12)addRune();}
-  // защитники стреляют
   for(const d of state.defs){const ty=DEF_TYPES[d.type];if(!ty.rate)continue;
     d.cd-=dt*(state.speedT>0?2:1);
     if(d.cd<=0){const target=state.zombies.filter(z=>!z.dead&&z.row===d.row&&z.x>d.col+.2&&z.x<9.8)
@@ -357,13 +337,11 @@ function update(dt){
       if(target){d.cd=ty.rate;
         if(ty.triple){for(let i=0;i<3;i++)addProj(d.row,d.col+.5-i*.3,'p3',1,false);sfx.triple();}
         else{addProj(d.row,d.col+.5,ty.slow?'p2':'p1',1,ty.slow);ty.slow?sfx.ice():sfx.shoot();}}}}
-  // снаряды
   for(const p of state.projs){p.x+=7*dt;
     const z=state.zombies.find(z=>!z.dead&&z.row===p.row&&Math.abs(z.x-p.x)<.4);
     if(z){damageZombie(z,p.dmg,p.slow);p.dead=true;p.el.remove();}
     else if(p.x>9.7){p.dead=true;p.el.remove();}}
   state.projs=state.projs.filter(p=>!p.dead);
-  // зомби
   for(const z of state.zombies){if(z.dead)continue;
     if(z.frozen>0){z.frozen-=dt;z.el.classList.add('frozen');}else z.el.classList.remove('frozen');
     const def=state.defs.find(d=>d.row===z.row&&!d.dead&&z.x-(d.col+.5)<=.55&&z.x-(d.col+.5)>-.2);
@@ -374,7 +352,6 @@ function update(dt){
       if(z.frozen<=0){if(z.slow>0)z.slow-=dt;z.x-=z.speed*(z.slow>0?.5:1)*dt;}}
     if(z.x<-.45){z.dead=true;z.el.remove();loseHeart();}}
   state.zombies=state.zombies.filter(z=>!z.dead);
-  // прогресс волны
   const rem=state.spawnQ.length+state.zombies.length;
   $('#waveBar i').style.width=((1-rem/state.waveTotal)*100)+'%';}
 function addProj(row,x,kind,dmg,slow){const el=document.createElement('div');el.className='proj '+kind;
@@ -383,7 +360,6 @@ function loseHeart(){state.hearts--;renderHearts();sfx.heart();
   const f=$('#flash');f.classList.remove('on');void f.offsetWidth;f.classList.add('on');
   if(state.hearts<=0)endGame(false);}
 
-/* ================= ВОПРОСЫ ================= */
 function nextQ(){if(!qBag.length){qBag=QUESTIONS.slice();qBag.sort(()=>Math.random()-.5);}return qBag.pop();}
 function openQuestion(i){clearRune(tiles[i]);state.paused=true;qOpen=true;qLock=false;
   qCur=nextQ();$('#qText').textContent=qCur[0];$('#qInput').value='';$('#qResult').textContent='';
@@ -404,7 +380,6 @@ function timeoutQ(){if(!qOpen||qLock)return;qLock=true;state.answered++;state.co
 function closeQuestion(){$('#question').classList.add('hidden');qOpen=false;state.paused=false;
   if(superPending&&!state.over){superPending=false;$('#superPanel').classList.remove('hidden');}}
 
-/* ================= СУПЕРСИЛА ================= */
 document.querySelectorAll('#superPanel button').forEach(b=>b.onclick=()=>{
   const k=b.dataset.sp;$('#superPanel').classList.add('hidden');state.combo=0;renderCombo();
   if(k==='sun'){state.runes+=5;renderRunes();sfx.coin();floatText(120,300,'+5 🪙');}
@@ -414,7 +389,6 @@ document.querySelectorAll('#superPanel button').forEach(b=>b.onclick=()=>{
     setTimeout(()=>el.remove(),500);damageZombie(z,3,false);});
     state.zombies=state.zombies.filter(z=>!z.dead);}});
 
-/* ================= МАГАЗИН ================= */
 $('#shopBtn').onclick=()=>{if(qOpen||!state.started||state.over)return;state.paused=true;$('#shop').classList.remove('hidden');};
 $('#shopClose').onclick=()=>{$('#shop').classList.add('hidden');state.paused=false;};
 document.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>{
@@ -427,7 +401,6 @@ document.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>{
     setTimeout(()=>el.remove(),500);damageZombie(z,2,false);});
     state.zombies=state.zombies.filter(z=>!z.dead);}});
 
-/* ================= ФИНАЛ / РЕНДЕР / ЦИКЛ ================= */
 function endGame(win){state.over=true;sfx[win?'win':'lose']();
   $('#endEm').textContent=win?'👑':'🪦';$('#endTitle').textContent=win?'ПОБЕДА!':'ИГРА ОКОНЧЕНА';
   $('#endStats').innerHTML=`Отбито волн: <b>${win?8:state.wave-1}/8</b><br>Зомби убито: <b>${state.kills}</b><br>Верных ответов: <b>${state.correct}</b>`;
@@ -444,7 +417,6 @@ function tick(t){const dt=Math.min(.05,(t-last)/1000);last=t;
   if(qOpen){qTime-=dt;$('#qTimerBar i').style.width=Math.max(0,qTime/15*100)+'%';if(qTime<=0)timeoutQ();}
   render();requestAnimationFrame(tick);}
 
-/* ================= СТАРТ ================= */
 $('#playBtn').onclick=()=>{$('#rules').classList.add('hidden');state.started=true;try{AC=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}};
 $('#qSubmit').onclick=submitAnswer;
 $('#qInput').addEventListener('keydown',e=>{if(e.key==='Enter')submitAnswer();});
